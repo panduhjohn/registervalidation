@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs')
+// const { check } = require('express-validator');
+const expressValidator = require('express-validator')
 
 let User = require('../models/User');
 
 let signupController = require('../controllers/signupController')
 let userController = require('../controllers/userController')
-
+let authChecker = require('../controllers/authChecker')
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -25,6 +27,25 @@ router.get('/', function (req, res, next) {
     })
 });
 
+
+//-----------------
+//Validator
+router.use(expressValidator({
+    errorFormatter: (param, message, value) => {
+      let namespace = param.split('.');
+      let root = namespace.shift();
+      let formParam = root;
+  
+      while (namespace.length) {
+        formParam += '[' + namespace.shift() + ']'
+      }
+      return {
+        param: formParam,
+        message: message,
+        value: value
+      }
+    }
+  }))
 // ----------------
 //Register
 
@@ -36,17 +57,45 @@ router.get('/register', (req, res) => {
 router.post('/register',
     signupController.checkExistsEmail,
     signupController.checkExistUsername,
-    signupController.createUser
+    signupController.createUser,
+
+    // req.checkbody('name', 'Only a-z characters').isAlpha()
+
+    // req.body.username.check('username').notEmpty().withMessage('Please enter a username').isLength({ min: 3, max: 15 }).withMessage('Username must be between 3 and 15 characters').blacklist(/<>\//)
 )
 
-// ----------------
-//Contact
 router.get('/contact', (req, res) => {
     res.render('contact', { error_msg: false, success_msg: false })
 })
-router.post('/contact', (req, res) => {
 
-})
+const userNameChecker = (username) => {
+    
+    username.check('username').notEmpty().withMessage('Please enter a username').isLength({min: 3, max: 15}).withMessage('Username must be within 3 and 15 characters').blacklist(/<>\//);
+  }
+
+router.post('/contact', [
+    check('req.body.name').isLength({ min: 3 }),
+    check('req.body.email').isEmail(),
+    check('age').isNumeric()
+  ], (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() })
+    }
+  
+    const name  = req.body.name
+    const email = req.body.email
+    const age   = req.body.age
+  })
+
+// ----------------
+//Contact
+// router.get('/contact', (req, res) => {
+//     res.render('contact', { error_msg: false, success_msg: false })
+// })
+// router.post('/contact', (req, res) => {
+
+// })
 
 // ----------------
 //Login
@@ -113,8 +162,6 @@ router.put('/updateuserbyid/:id', (req, res) => {
     })
 
 })
-
-
 
 // ----------------
 //About

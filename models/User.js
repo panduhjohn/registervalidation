@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const moment = require('moment');
 const expressValidator = require('express-validator')
-const authChecker = require('./utils/authChecker')
+const authChecker = require('../controllers/authChecker')
 
 
 let UserSchema = new mongoose.Schema({

@@ -1,6 +1,7 @@
 const User = require('../models/User')
 const bcrypt = require('bcryptjs')
 
+
 module.exports = {
 
   checkExistsEmail: (req, res, next) => {

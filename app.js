@@ -7,14 +7,18 @@ const logger = require('morgan');
 let mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost/node_mvc', {useNewUrlParser: true, useUnifiedTopology: true}, (err) => {
-  if(err) console.log(`error:`, error);
-  else console.log(`MongoDB connected`);
+    if(err) console.log(`error:`, error);
+    else console.log(`MongoDB connected`);
 })
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 
+const expressValidator = require('express-validator')
+
 let app = express();
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
